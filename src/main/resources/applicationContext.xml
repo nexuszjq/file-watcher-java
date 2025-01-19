@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="com.filemonitor"/>
+
+    <!-- 配置属性占位符解析，使用系统属性 -->
+    <context:property-placeholder system-properties-mode="OVERRIDE"/>
+
+    <!-- SFTP配置 -->
+    <bean id="sftpConfig" class="com.filemonitor.config.SftpConfig">
+        <property name="host" value="${sftp.host}"/>
+        <property name="port" value="${sftp.port}"/>
+        <property name="username" value="${sftp.username}"/>
+        <property name="privateKeyPath" value="${sftp.privateKeyPath}"/>
+        <property name="privateKeyPassphrase" value="${sftp.privateKeyPassphrase}"/>
+    </bean>
+
+    <!-- 监控配置 -->
+    <bean id="monitorConfig" class="com.filemonitor.config.MonitorConfig">
+        <property name="recordFile" value="${monitor.recordFile}"/>
+        <property name="mappingFile" value="${monitor.mappingFile}"/>
+        <property name="pollingInterval" value="${monitor.pollingInterval}"/>
+    </bean>
+
+    <!-- 核心服务 -->
+    <bean id="sftpService" class="com.filemonitor.sftp.SftpService">
+        <constructor-arg ref="sftpConfig"/>
+    </bean>
+
+    <bean id="fileRecordService" class="com.filemonitor.persistence.FileRecordService">
+        <constructor-arg value="${monitor.recordFile}"/>
+    </bean>
+
+    <bean id="fileMonitorService" class="com.filemonitor.monitor.FileMonitorService">
+        <constructor-arg ref="monitorConfig"/>
+        <constructor-arg ref="sftpService"/>
+        <constructor-arg ref="fileRecordService"/>
+    </bean>
+</beans> 

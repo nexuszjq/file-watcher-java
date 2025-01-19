@@ -1,0 +1,9 @@
+# 文件映射配置
+# 格式：pattern|sourcePath|targetPath
+# pattern: 文件名匹配模式（正则表达式）
+# sourcePath: 本地监控目录
+# targetPath: 远程目标目录
+
+.*\.txt|/local/path/to/monitor|/remote/path/to/upload
+.*\.jpg|/another/local/path|/another/remote/path
+.*\.pdf|/documents/path|/remote/documents 
