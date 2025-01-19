@@ -80,12 +80,38 @@ public class FileMonitorService {
                 observer.addListener(createFileListener(mapping));
                 monitor.addObserver(observer);
                 log.info("Monitoring directory: {}", mapping.getSourcePath());
+
+                // 处理已存在的文件
+                processExistingFiles(directory, mapping);
             }
 
             monitor.start();
             log.info("File monitoring started with {} file mappings", monitorConfig.getFileMappings().size());
         } catch (Exception e) {
             log.error("Error starting file monitor: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 处理目录中已存在的文件
+     */
+    private void processExistingFiles(File directory, MonitorConfig.FileMapping mapping) {
+        File[] existingFiles = directory.listFiles(file -> 
+            file.isFile() && file.getName().matches(mapping.getPattern())
+        );
+
+        if (existingFiles != null) {
+            log.info("Found {} existing files in directory: {}", 
+                existingFiles.length, directory.getPath());
+
+            for (File file : existingFiles) {
+                if (!fileRecordService.isFileProcessed(file)) {
+                    log.info("Processing existing file: {}", file.getPath());
+                    submitFileProcessing(file, mapping);
+                } else {
+                    log.debug("Skipping already processed file: {}", file.getPath());
+                }
+            }
         }
     }
 
